@@ -19,34 +19,49 @@ namespace Seacher
         {
             this.dir = dir;
             this.term = term;
-
         }
 
         private void Scan(string dir)
         {
-            string[] files = Directory.GetFiles(dir);
-            string[] dirs = Directory.GetDirectories(dir);
-
-            List<string> allfiles = new List<string>();
-            allfiles.AddRange(files);
-            allfiles.AddRange(dirs);
-
-            foreach (string s in allfiles)
+            try
             {
-                string _s = s.ToLower();
-                string _term = this.term.ToLower();
+                string[] files = Directory.GetFiles(dir);
+                string[] dirs = Directory.GetDirectories(dir);
 
-                if (Directory.Exists(s) && s != "." && s != "..")
+                List<string> allfiles = new List<string>();
+                allfiles.AddRange(files);
+                allfiles.AddRange(dirs);
+
+                foreach (string s in allfiles)
                 {
-                    Scan(s);
-                    continue;
-                }
+                    string _s = s.ToLower();
+                    string _term = this.term.ToLower();
 
-                if (_s.Contains(_term))
-                {
-                    OnFileFound(_s);
-                }
+                    if (Directory.Exists(s) && s != "." && s != "..")
+                    {
+                        Scan(s);
+                        continue;
+                    }
 
+                    if (_s.Contains(_term))
+                    {
+                        OnFileFound(_s);
+                    }
+                }
+            }
+
+            catch (UnauthorizedAccessException)
+            {
+                Console.Write("UnAuthorizedAccessException: Unable to access file. ");
+            }
+            catch (DirectoryNotFoundException dirEx)
+            {
+                Console.WriteLine("Directory not found: " + dirEx.Message);
+            }
+
+            catch (ArgumentException)
+            {
+                Console.WriteLine("The Search Directory is empty");
             }
         }
 
@@ -57,10 +72,10 @@ namespace Seacher
 
 
         public string Term
-        { 
+        {
             set { term = value; }
-            get { return this.term; }        
-        
+            get { return this.term; }
+
         }
 
         public string Dir
